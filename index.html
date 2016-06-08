@@ -22,17 +22,30 @@
 		<script type="text/javascript"
 		src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.6/angular.js"></script>
 
+		<!-- Awesome Fonts -->
+		<script src="https://use.fontawesome.com/50a283e687.js"></script>
+
 		<!-- This app's CSS -->
 		<link rel="stylesheet" type="text/css" href="./main.css">
 	</head>
 	
 	<body ng-controller="myController as myCtrl">
+		<div class="jumbotron controls">
+		  <h1>Starcraft Rankings</h1>
+		  	<i class="fa fa-users stats" aria-hidden="true"></i>
+		  	{{ myCtrl.getNumberOfPlayers() }} Players
+		  	<i class="fa fa-angle-double-right stats" aria-hidden="true"></i>
+		  	Number of Games: <strong>{{ myCtrl.getNumberOfGamesPlayed() }}</strong>
+		  	<i class="fa fa-angle-double-right stats" aria-hidden="true"></i>
+		  	Most popular Race: <strong>{{ myCtrl.getRacePopularity() }}</strong>
+		</div>
 		<div class= "container">
-			<div class="row controls">
-				<div class="col-xs-12">
-					<label for="searchField">Search:</label>
-					<input type="text" id="searchField" ng-model="myCtrl.searchData">
-				</div>
+			<div class="row">
+				<div class="col-xs-12 controls">
+					<label for="searchRaceField">Search Race:</label>
+					<input type="text" id="searchField" ng-model="myCtrl.raceField">
+					<label for="searchRegionField">Search Region:</label>
+					<input type="text" id="searchField" ng-model="myCtrl.regionField">
 			</div>
 			<div class="row">
 				<div class="col-xs-12">
@@ -48,8 +61,8 @@
 							<tr ng-repeat="data in myCtrl.starCraftJSON.data 
 									| startFrom:myCtrl.currentPage * myCtrl.itemsPerPage
 								 	| limitTo:myCtrl.itemsPerPage
-									| filter:myCtrl.searchData">
-								<td ng-repeat="item in data">
+								 	| filter: {race : myCtrl.raceField, region : myCtrl.regionField}">
+									<td ng-repeat="item in data">
 									{{ item }}
 								</td>
 							</tr>

@@ -6,106 +6,19 @@ var app = angular.module('starCraft', [])
 // index depending on what page we are on
 app.filter('startFrom', function() {
     return function(data, fromIndex) {
-      // console.log(data)
       return data.slice(fromIndex);
     }
 });
 
-// our user object that we will use for our transform which will
-// take the array of arrays (data from the JSON) and transform to
-// data of objects with key : value pairs - a collection
-function User(dataArray) {
-  this.username = dataArray[0];
-  this.fullname = dataArray[1];
-  this.region   = dataArray[2];
-  this.race     = dataArray[3];
-  this.wins     = dataArray[4];
-  this.losses   = dataArray[5];
-};
-
-// ---------------------------------------------------- 
-function transformStarCraftJSON(dataArray) {
-  for (var i = 0; i < dataArray.length; i++) {
-    dataArray[i] = new User(dataArray[i]);
-  }
-}
-
-// ---------------------------------------------------- 
-function setWinsAndLosses(data, winsAndLosses) {
-  for (var i = 0; i < data.length; i++) {
-    winsAndLosses.wins += data[i].wins;
-    winsAndLosses.losses += data[i].losses;
-  }
-}
-
-// ---------------------------------------------------- 
-function setRacePopularity(data) {
-  var raceArray = [];
-  var totalGames = [];
-  var found;
-
-  for (var i = 0; i < data.length; i++) {
-    found = false;
-    for (var j = 0; j < raceArray.length; j++) {
-      if (data[i].race.toLowerCase() 
-          === raceArray[j].race.toLowerCase()) {
-        raceArray[j].totalGames += data[i].wins + data[i].losses;
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      raceArray.push({'race': data[i].race, 'totalGames': data[i].wins + data[i].losses});
-    }
-  }
-
-  // sort by descending totalGames with b - a 
-  raceArray.sort(function(a,b) {
-    return b['totalGames'] - a['totalGames'];
-  });
-
-  // handles ties if there happens to be any - the top at [0] we know will
-  // have the largest amount of games played after our sort()
-  var totalGames = [{'race': raceArray[0].race, 'totalGames':raceArray[0].totalGames}];
-
-  for (var i = 1; i < raceArray.length; i++) {
-    if (raceArray[i].totalGames === totalGames[0].totalGames) {
-      totalGames.push(raceArray[i]);
-    }
-  }
-  return totalGames;
-}
-
-// ---------------------------------------------------- 
 function myController() {
-  var self            = this;
-  self.itemsPerPage   = 20; // 20 players per page
-  self.currentPage    = 0;
-  self.winsAndLosses  = {'wins':0, 'losses':0};
-  self.totalGames    = [];
+  var self          = this;
+  self.itemsPerPage = 20; // 20 players per page
+  self.currentPage  = 0;
 
   self.getNumberOfPages = function() {
     return Math.ceil(self.starCraftJSON.data.length / self.itemsPerPage);
   }
-  self.getNumberOfPlayers = function() {
-    return self.starCraftJSON.data.length;
-  }
 
-  self.getNumberOfGamesPlayed = function() {
-    return self.winsAndLosses.wins + self.winsAndLosses.losses;
-  }
-
-  self.getRacePopularity = function() {
-    // console.log("totalGames:", this.totalGames);
-    var result = this.totalGames[0].race;
-
-    for (var i = 1; i < this.totalGames.length; i++) {
-      result += " and " + this.totalGames[i].race;;
-    }
-    return result + " with " + this.totalGames[0].totalGames + " games played";
-  }
-
-  // big JSON object which we will read in from a file in time....
   self.starCraftJSON = {
     "cols": [
       "Username",
@@ -918,17 +831,5 @@ function myController() {
       ]
     ]
   }
-  // transform our JSON array of array data structure to an array of 
-  // objects (a collection)
-  transformStarCraftJSON(self.starCraftJSON.data);
-
-  // set the total wins and total losses
-  setWinsAndLosses(self.starCraftJSON.data, self.winsAndLosses);
-
-  // create an array of Races with their totals so we can calculate 
-  // later, the most popular
-  self.totalGames = setRacePopularity(self.starCraftJSON.data);
 }
-
-
 
